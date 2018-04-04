@@ -843,7 +843,14 @@ abstract class TestRunner {
     await this.queue.drain();
     if (drainQueue.expectUserCallback) {
       const nextCallback = this.outstandingCallbacks.shift();
-      return nextCallback.promise;
+      return nextCallback.promise.then(
+        () => {
+          expect(drainQueue.expectUserCallback).to.equal('success');
+        },
+        () => {
+          expect(drainQueue.expectUserCallback).to.equal('failure');
+        }
+      );
     }
   }
 
@@ -1538,8 +1545,11 @@ export type SpecWriteFailure = {
 };
 
 export type SpecDrainQueue = {
-  /** Whether the drain is expected to generate a user callback. */
-  expectUserCallback: boolean;
+  /**
+   * If set, expects the drain to generate a user callback with a resolved
+   * or rejected promise.
+   */
+  expectUserCallback?: 'success' | 'failure';
 };
 
 export interface SpecWatchEntity {
