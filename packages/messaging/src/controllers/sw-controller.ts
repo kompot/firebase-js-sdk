@@ -24,8 +24,14 @@ const FCM_MSG = 'FCM_MSG';
 
 export type BgMessageHandler = (input: any) => Promise<any>;
 
+export interface ActionHandlers {
+  // TODO: use NotificationEvent instead of any
+  [key: string]: (event: any) => void;
+}
+
 export class SWController extends ControllerInterface {
   private bgMessageHandler_: BgMessageHandler | null = null;
+  private actionHandlers: ActionHandlers | null = null;
 
   constructor(app: FirebaseApp) {
     super(app);
@@ -158,8 +164,20 @@ export class SWController extends ControllerInterface {
 
     // Prevent other listeners from receiving the event
     event.stopImmediatePropagation();
-
     event.notification.close();
+
+    if (event.action) {
+      // User clicked on an action button in the message
+      const action: string = event.action;
+
+      if (this.actionHandlers && this.actionHandlers.hasOwnProperty(action)) {
+        // User has defined a handler for this action
+        // Call it
+        this.actionHandlers[action](event);
+      }
+
+      return;
+    }
 
     const msgPayload = event.notification.data[FCM_MSG];
     if (!msgPayload['notification']) {
@@ -248,6 +266,25 @@ export class SWController extends ControllerInterface {
     }
 
     this.bgMessageHandler_ = callback;
+  }
+
+  /**
+   * Allows the user to set callbacks for action clicks.
+   *
+   * If your notification has two actions, "reply" and "ignore", an example
+   * actionHandlers object would be:
+   *
+   * {
+   *   "reply": (event) => {
+   *     console.log("reply action clicked")
+   *   },
+   *   "ignore": (event) =>  {
+   *     console.log("ignore action clicked")
+   *   }
+   * }
+   */
+  setActionHandlers(actionHandlers: ActionHandlers): void {
+    this.actionHandlers = actionHandlers;
   }
 
   /**
