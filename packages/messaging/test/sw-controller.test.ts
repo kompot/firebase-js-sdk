@@ -697,39 +697,75 @@ describe('Firebase Messaging > *SWController', () => {
       });
     });
 
-    it('handles actions', () => {
-      const event = {
-        notification: {
-          data: {
-            FCM_MSG: {
-              notification: {
-                actions: [
-                  { action: 'action1', title: 'action1 title' },
-                  { action: 'action2', title: 'action2 title' }
-                ]
+    describe('action clicks', () => {
+      it('closes notification and calls handler if it is defined', () => {
+        const event = {
+          notification: {
+            data: {
+              FCM_MSG: {
+                notification: {
+                  actions: [
+                    { action: 'action1', title: 'action1 title' },
+                    { action: 'action2', title: 'action2 title' }
+                  ]
+                }
               }
-            }
+            },
+            close: sandbox.spy()
           },
-          close: sandbox.spy()
-        },
-        action: 'action1', // clicked action
-        waitUntil: sandbox.spy(),
-        stopImmediatePropagation: sandbox.spy()
-      };
-      const swController = new SWController(app);
-      const actionHandlers = {
-        action1: sandbox.spy(),
-        action2: sandbox.spy()
-      };
-      swController.setActionHandlers(actionHandlers);
+          action: 'action1', // clicked action
+          waitUntil: sandbox.spy(),
+          stopImmediatePropagation: sandbox.spy()
+        };
+        const swController = new SWController(app);
+        const actionHandlers = {
+          action1: sandbox.spy(),
+          action2: sandbox.spy()
+        };
+        swController.setActionHandlers(actionHandlers);
 
-      swController.onNotificationClick_(event);
+        swController.onNotificationClick_(event);
 
-      expect(event.waitUntil.callCount).to.equal(0);
-      expect(event.stopImmediatePropagation.callCount).to.equal(1);
-      expect(event.notification.close.callCount).to.equal(1);
-      expect(actionHandlers.action1.callCount).to.equal(1);
-      expect(actionHandlers.action2.callCount).to.equal(0);
+        expect(event.waitUntil.callCount).to.equal(0);
+        expect(event.stopImmediatePropagation.callCount).to.equal(1);
+        expect(event.notification.close.callCount).to.equal(1);
+        expect(actionHandlers.action1.callCount).to.equal(1);
+        expect(actionHandlers.action2.callCount).to.equal(0);
+      });
+
+      it('closes notification and does nothing if handler is not defined', () => {
+        const event = {
+          notification: {
+            data: {
+              FCM_MSG: {
+                notification: {
+                  actions: [
+                    { action: 'action1', title: 'action1 title' },
+                    { action: 'action2', title: 'action2 title' }
+                  ]
+                }
+              }
+            },
+            close: sandbox.spy()
+          },
+          action: 'action1', // clicked action
+          waitUntil: sandbox.spy(),
+          stopImmediatePropagation: sandbox.spy()
+        };
+        const swController = new SWController(app);
+        const actionHandlers = {
+          // No handler for action1
+          action2: sandbox.spy()
+        };
+        swController.setActionHandlers(actionHandlers);
+
+        swController.onNotificationClick_(event);
+
+        expect(event.waitUntil.callCount).to.equal(0);
+        expect(event.stopImmediatePropagation.callCount).to.equal(1);
+        expect(event.notification.close.callCount).to.equal(1);
+        expect(actionHandlers.action2.callCount).to.equal(0);
+      });
     });
   });
 
