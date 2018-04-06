@@ -40,6 +40,8 @@ export const ERROR_CODES = {
   DELETE_TOKEN_NOT_FOUND: 'delete-token-not-found',
   DELETE_SCOPE_NOT_FOUND: 'delete-scope-not-found',
   BG_HANDLER_FUNCTION_EXPECTED: 'bg-handler-function-expected',
+  ACTION_HANDLERS_OBJECT_EXPECTED: 'action-handlers-object-expected',
+  ACTION_HANDLERS_FUNCTION_EXPECTED: 'action-handlers-function-expected',
   NO_WINDOW_CLIENT_TO_MSG: 'no-window-client-to-msg',
   UNABLE_TO_RESUBSCRIBE: 'unable-to-resubscribe',
   NO_FCM_TOKEN_FOR_RESUBSCRIBE: 'no-fcm-token-for-resubscribe',
@@ -112,6 +114,10 @@ export const ERROR_MAP = {
     'scope could not be performed as the scope was not found.',
   [ERROR_CODES.BG_HANDLER_FUNCTION_EXPECTED]:
     'The input to ' + 'setBackgroundMessageHandler() must be a function.',
+  [ERROR_CODES.ACTION_HANDLERS_OBJECT_EXPECTED]:
+    'The input to setActionHandlers() must be an object.',
+  [ERROR_CODES.ACTION_HANDLERS_FUNCTION_EXPECTED]:
+    'The member properties of ActionHandlers must be functions.',
   [ERROR_CODES.NO_WINDOW_CLIENT_TO_MSG]:
     'An attempt was made to message a ' + 'non-existant window client.',
   [ERROR_CODES.UNABLE_TO_RESUBSCRIBE]:

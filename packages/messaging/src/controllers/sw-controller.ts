@@ -284,6 +284,20 @@ export class SWController extends ControllerInterface {
    * }
    */
   setActionHandlers(actionHandlers: ActionHandlers): void {
+    if (actionHandlers == null || typeof actionHandlers !== 'object') {
+      throw this.errorFactory_.create(
+        ERROR_CODES.ACTION_HANDLERS_OBJECT_EXPECTED
+      );
+    }
+
+    for (const key of Object.keys(actionHandlers)) {
+      if (typeof actionHandlers[key] !== 'function') {
+        throw this.errorFactory_.create(
+          ERROR_CODES.ACTION_HANDLERS_FUNCTION_EXPECTED
+        );
+      }
+    }
+
     this.actionHandlers = actionHandlers;
   }
 

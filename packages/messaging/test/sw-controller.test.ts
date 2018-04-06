@@ -18,7 +18,7 @@ import * as sinon from 'sinon';
 import { makeFakeApp } from './make-fake-app';
 import { makeFakeSWReg } from './make-fake-sw-reg';
 
-import { SWController } from '../src/controllers/sw-controller';
+import { SWController, ActionHandlers } from '../src/controllers/sw-controller';
 import { base64ToArrayBuffer } from '../src/helpers/base64-to-array-buffer';
 import { DEFAULT_PUBLIC_VAPID_KEY } from '../src/models/fcm-details';
 import { VapidDetailsModel } from '../src/models/vapid-details-model';
@@ -696,6 +696,41 @@ describe('Firebase Messaging > *SWController', () => {
         });
       });
     });
+
+    it('handles actions', () => {
+      const event = {
+        notification: {
+          data: {
+            FCM_MSG: {
+              notification: {
+                actions: [
+                  { action: 'action1', title: 'action1 title' },
+                  { action: 'action2', title: 'action2 title' }
+                ]
+              }
+            }
+          },
+          close: sandbox.spy()
+        },
+        action: 'action1', // clicked action
+        waitUntil: sandbox.spy(),
+        stopImmediatePropagation: sandbox.spy()
+      };
+      const swController = new SWController(app);
+      const actionHandlers = {
+        action1: sandbox.spy(),
+        action2: sandbox.spy()
+      };
+      swController.setActionHandlers(actionHandlers);
+
+      swController.onNotificationClick_(event);
+
+      expect(event.waitUntil.callCount).to.equal(0);
+      expect(event.stopImmediatePropagation.callCount).to.equal(1);
+      expect(event.notification.close.callCount).to.equal(1);
+      expect(actionHandlers.action1.callCount).to.equal(1);
+      expect(actionHandlers.action2.callCount).to.equal(0);
+    });
   });
 
   describe('getNotificationData_', () => {
@@ -919,6 +954,59 @@ describe('Firebase Messaging > *SWController', () => {
       return controller.getPublicVapidKey_().then(pubKey => {
         expect(pubKey).deep.equal(vapidKeyInUse);
       });
+    });
+  });
+
+  describe('setActionHandlers', () => {
+    it('sets action handlers', () => {
+      const swController = new SWController(app);
+      const actionHandlers: ActionHandlers = {
+        action1: () => {
+          // action1 callback
+        },
+        action2: () => {
+          // action2 callback
+        }
+      };
+
+      expect((swController as any).actionHandlers).to.be.null;
+      swController.setActionHandlers(actionHandlers);
+      expect((swController as any).actionHandlers).to.equal(actionHandlers);
+    });
+
+    it('throws if input is not an object', () => {
+      const swController = new SWController(app);
+      let thrownError;
+      try {
+        swController.setActionHandlers('' as any);
+      } catch (err) {
+        thrownError = err;
+      }
+
+      expect(thrownError).to.exist;
+      expect(thrownError.code).to.equal(
+        'messaging/action-handlers-object-expected'
+      );
+    });
+
+    it('throws if a property of the input is not a function', () => {
+      const swController = new SWController(app);
+      let thrownError;
+      try {
+        swController.setActionHandlers({
+          action1: () => {
+            // action1 callback
+          },
+          action2: 'invalid property'
+        } as any);
+      } catch (err) {
+        thrownError = err;
+      }
+
+      expect(thrownError).to.exist;
+      expect(thrownError.code).to.equal(
+        'messaging/action-handlers-function-expected'
+      );
     });
   });
 });
