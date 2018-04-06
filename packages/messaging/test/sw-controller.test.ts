@@ -18,7 +18,7 @@ import * as sinon from 'sinon';
 import { makeFakeApp } from './make-fake-app';
 import { makeFakeSWReg } from './make-fake-sw-reg';
 
-import { SWController, ActionHandlers } from '../src/controllers/sw-controller';
+import { ActionHandlers, SWController } from '../src/controllers/sw-controller';
 import { base64ToArrayBuffer } from '../src/helpers/base64-to-array-buffer';
 import { DEFAULT_PUBLIC_VAPID_KEY } from '../src/models/fcm-details';
 import { VapidDetailsModel } from '../src/models/vapid-details-model';
