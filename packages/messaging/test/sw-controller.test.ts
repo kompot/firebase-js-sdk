@@ -52,7 +52,8 @@ describe('Firebase Messaging > *SWController', () => {
     // context and considers these properties readonly.
 
     (self as any).clients = 'This is a placeholder for sinon to overwrite.';
-    (self as any).registration = 'This is a placeholder for sinon to overwrite.';
+    (self as any).registration =
+      'This is a placeholder for sinon to overwrite.';
 
     sandbox = sinon.sandbox.create();
     app = makeFakeApp({
