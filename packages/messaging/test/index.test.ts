@@ -30,7 +30,7 @@ describe('Firebase Messaging > registerMessaging', () => {
 
   afterEach(() => {
     sinonSandbox.restore();
-  })
+  });
 
   it('calls registerService', () => {
     registerMessaging(fakeFirebase);
