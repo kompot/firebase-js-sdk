@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MessagePayload} from '../interfaces/message-payload'
+import { MessagePayload } from '../interfaces/message-payload';
 
 export enum MessageParameter {
   TYPE_OF_MSG = 'firebase-messaging-msg-type',
